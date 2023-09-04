@@ -5,7 +5,10 @@ export {
     Movement,
     Position,
     EntityType,
+    Pathfinder,
 } from './components'
+export type { AllComponents, PosType } from './components'
+
 export { Entity, RoverEntity, TargetEntity, ObstacleEntity } from './entities'
 export { System } from './systems'
 export { WorldSystem, RenderingSystem } from './systems'

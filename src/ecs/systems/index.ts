@@ -5,8 +5,11 @@ import {
     RoverEntity,
     TargetEntity,
     ObstacleEntity,
+    Style,
+    Position,
+    Movement,
+    Target,
 } from '..'
-import { Position, Style } from '../components'
 
 // System: Logic to process entities and components
 export class System {
@@ -60,7 +63,6 @@ export class WorldSystem extends System {
     world: [number, number]
     constructor(initialWorld: WorldType[][]) {
         super()
-        // this.world = createWorldEntities(initialWorld)
         this.world = [initialWorld[0].length, initialWorld.length]
         this.initWorld(initialWorld)
     }
@@ -68,13 +70,17 @@ export class WorldSystem extends System {
     init() {
         // Add all entities and components to the world
         this.initEntities()
-
         this.initComponents()
     }
 
     private initEntities() {
+        const rover = new RoverEntity()
+        const roverTarget = rover.components.find(
+            (component) => component instanceof Target
+        ) as Target
+        roverTarget.setTarget({ x: 9, y: 4 })
         // Add all entities to the world
-        this.addEntity(new RoverEntity())
+        this.addEntity(rover)
         this.addEntity(new TargetEntity(9, 4))
     }
 
@@ -103,7 +109,37 @@ export class WorldSystem extends System {
     }
 
     update() {
+        const rovers = this.entities.filter(
+            (e) => e instanceof RoverEntity
+        ) as RoverEntity[]
+
+        // const roverPositions = rovers.map((rover) => {
+        //     const pos = rover.components.find(
+        //         (component) => component instanceof Position
+        //     ) as Position
+        //     return { ...pos, id: rover.id }
+        // })
         // Implement logic to update the world state
+        for (const rover of rovers) {
+            rover.update(this.entities)
+        }
+
+        // for (const rover of rovers) {
+        //   // get rover position
+        //   const pos = rover.components.find(
+        //     (component) => component instanceof Position
+        //   ) as Position | undefined
+        //   if (pos) {
+        //     // check rover prev position
+        //     const prevPos = roverPositions.find((p) => p.id === rover.id)
+        //     if (prevPos) {
+        //       // if rover moved, then I want to reflect the change in the world
+        //       this.world[prevPos.y][prevPos.x] = 0
+
+        //     }
+
+        //   }
+        // }
     }
 }
 
@@ -178,5 +214,6 @@ export class RenderingSystem extends System {
 
     update() {
         // Implement rendering logic here
+        this.drawWorld()
     }
 }
