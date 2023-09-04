@@ -15,7 +15,7 @@ export class Entity {
     static lastId = 0
     id: number
     private visible = false
-    components: Component[] = []
+    private components: Component[] = []
 
     constructor() {
         this.id = ++Entity.lastId
@@ -32,9 +32,21 @@ export class Entity {
     getComp<T extends AllComponents>(
         ComponentClass: new (...args: any[]) => T
     ) {
-        return this.components.find(
+        const _class = this.components.find(
             (comp) => comp instanceof ComponentClass
-        ) as T
+        )
+
+        if (!_class || !(_class instanceof ComponentClass)) {
+            throw new Error(
+                `Component ${ComponentClass.name} not found on entity ${this.id}`
+            )
+        }
+
+        return _class
+    }
+
+    getComponents() {
+        return this.components
     }
 
     addComponent(component: Component) {
@@ -65,30 +77,24 @@ export class RoverEntity extends Entity {
     }
 
     update(entities: Entity[]) {
-        const movement = this.components.find((c) => c instanceof Movement) as
-            | Movement
-            | undefined
-        const pathfinder = this.components.find(
-            (c) => c instanceof Pathfinder
-        ) as Pathfinder | undefined
-        const target = this.components.find((c) => c instanceof Target) as
-            | Target
-            | undefined
+        const target = this.getComp(Target)
+        const movement = this.getComp(Movement)
+        const pathfinder = this.getComp(Pathfinder)
 
-        const targetPos = target?.getTarget()
+        const targetPos = target.getTarget()
 
         if (targetPos) {
             const { x, y } = targetPos
             console.log({ x, y, movement, pathfinder, target })
-            const { x: x2, y: y2 } = movement?.getPosition() || { x: 0, y: 0 }
+            const { x: x2, y: y2 } = movement.getPosition()
             if (x === x2 && y === y2) {
-                target?.setTarget(null)
+                target.setTarget(null)
                 return
             }
 
-            const path = pathfinder?.findPath(entities) || []
+            const path = pathfinder.findPath(entities)
 
-            if (path.length > 0 && movement) {
+            if (path.length > 0) {
                 movement.moveAlongPath(path)
             }
         }

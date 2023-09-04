@@ -79,9 +79,7 @@ export class Movement extends Component {
     }
 
     getPosition() {
-        const pos = this.entity.components.find(
-            (c) => c instanceof Position
-        ) as Position
+        const pos = this.entity.getComp(Position)
         return pos
     }
 
@@ -143,9 +141,7 @@ export class Pathfinder extends Component {
         // build the world size
         const maxX = Math.max(
             ...entities.map((e) => {
-                const pos = e.components.find(
-                    (c) => c instanceof Position
-                ) as Position
+                const pos = e.getComp(Position)
                 if (pos) {
                     return pos.x + 1
                 }
@@ -154,9 +150,7 @@ export class Pathfinder extends Component {
         )
         const maxY = Math.max(
             ...entities.map((e) => {
-                const pos = e.components.find(
-                    (c) => c instanceof Position
-                ) as Position
+                const pos = e.getComp(Position)
                 if (pos) {
                     return pos.y + 1
                 }
@@ -168,12 +162,8 @@ export class Pathfinder extends Component {
             .map(() => Array(maxX).fill(0))
 
         for (const entity of entities) {
-            const pos = entity.components.find(
-                (c) => c instanceof Position
-            ) as Position
-            const type = entity.components.find(
-                (c) => c instanceof EntityType
-            ) as EntityType
+            const pos = entity.getComp(Position)
+            const type = entity.getComp(EntityType)
             if (pos && type) {
                 this.grid[pos.y][pos.x] = type.type
             }

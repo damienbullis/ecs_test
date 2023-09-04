@@ -7,7 +7,6 @@ import {
     ObstacleEntity,
     Style,
     Position,
-    Movement,
     Target,
 } from '..'
 
@@ -75,9 +74,7 @@ export class WorldSystem extends System {
 
     private initEntities() {
         const rover = new RoverEntity()
-        const roverTarget = rover.components.find(
-            (component) => component instanceof Target
-        ) as Target
+        const roverTarget = rover.getComp(Target)
         roverTarget.setTarget({ x: 9, y: 4 })
         // Add all entities to the world
         this.addEntity(rover)
@@ -87,7 +84,7 @@ export class WorldSystem extends System {
     private initComponents() {
         // Add all components to the world
         for (const entity of this.entities) {
-            for (const component of entity.components) {
+            for (const component of entity.getComponents()) {
                 this.addComponent(component)
             }
         }
@@ -113,33 +110,9 @@ export class WorldSystem extends System {
             (e) => e instanceof RoverEntity
         ) as RoverEntity[]
 
-        // const roverPositions = rovers.map((rover) => {
-        //     const pos = rover.components.find(
-        //         (component) => component instanceof Position
-        //     ) as Position
-        //     return { ...pos, id: rover.id }
-        // })
-        // Implement logic to update the world state
         for (const rover of rovers) {
             rover.update(this.entities)
         }
-
-        // for (const rover of rovers) {
-        //   // get rover position
-        //   const pos = rover.components.find(
-        //     (component) => component instanceof Position
-        //   ) as Position | undefined
-        //   if (pos) {
-        //     // check rover prev position
-        //     const prevPos = roverPositions.find((p) => p.id === rover.id)
-        //     if (prevPos) {
-        //       // if rover moved, then I want to reflect the change in the world
-        //       this.world[prevPos.y][prevPos.x] = 0
-
-        //     }
-
-        //   }
-        // }
     }
 }
 
@@ -185,16 +158,12 @@ export class RenderingSystem extends System {
             this.ctx.fillStyle = '#111111'
         } else {
             const entity = entities.find((entity) => {
-                const pos = entity.components.find(
-                    (component) => component instanceof Position
-                ) as Position
+                const pos = entity.getComp(Position)
                 return pos.x === x - 1 && pos.y === y - 1
             })
 
             if (entity) {
-                const style = entity.components.find(
-                    (component) => component instanceof Style
-                ) as Style
+                const style = entity.getComp(Style)
                 this.ctx.fillStyle = style.css.backgroundColor || 'yellow'
             } else {
                 this.ctx.fillStyle = '#e3e3e3'
