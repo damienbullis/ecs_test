@@ -10,7 +10,9 @@ import {
     Target,
     History,
     getHistoryColor,
+    Pathfinder,
 } from '..'
+import { World } from '../../main'
 
 // System: Logic to process entities and components
 export class System {
@@ -62,10 +64,12 @@ export class System {
 export class WorldSystem extends System {
     // World is a 2D array of entities
     world: [number, number]
+    grid: WorldType[][] = null!
     constructor(initialWorld: WorldType[][]) {
         super()
         this.world = [initialWorld[0].length, initialWorld.length]
         this.initWorld(initialWorld)
+        this.grid = initialWorld
     }
 
     init() {
@@ -75,21 +79,18 @@ export class WorldSystem extends System {
     }
 
     private initEntities() {
-        const goal = { x: 9, y: 4 }
-        const rover = new RoverEntity()
-        const roverTarget = rover.getComp(Target)
-        roverTarget.setTarget(goal)
-        const rover2 = new RoverEntity(1, 4)
-        const rover2Target = rover2.getComp(Target)
-        rover2Target.setTarget(goal)
-        const rover3 = new RoverEntity(5, 1)
-        const rover3Target = rover3.getComp(Target)
-        rover3Target.setTarget(goal)
-        // Add all entities to the world
-        this.addEntity(rover)
-        this.addEntity(rover2)
-        this.addEntity(rover3)
-        this.addEntity(new TargetEntity(9, 4))
+        // Add target to rover entities target
+        const targetEntity = this.entities.find(
+            (e) => e instanceof TargetEntity
+        ) as TargetEntity
+
+        for (const entity of this.entities.filter(
+            (e) => e instanceof RoverEntity
+        ) as RoverEntity[]) {
+            const target = entity.getComp(Target)
+            const pos = targetEntity.getComp(Position)
+            target.setTarget({ x: pos.x, y: pos.y })
+        }
     }
 
     private initComponents() {
@@ -116,7 +117,36 @@ export class WorldSystem extends System {
         return this.entities
     }
 
+    private getRandomPosition() {
+        const currentObjects = this.entities.map((e) => e.getComp(Position))
+
+        const availablePositions: [number, number][] = []
+        const x = this.grid[0].length
+        const y = this.grid.length
+        for (let i = 0; i < x; i++) {
+            for (let j = 0; j < y; j++) {
+                if (!currentObjects.find((p) => p.x === i && p.y === j)) {
+                    availablePositions.push([i, j])
+                }
+            }
+        }
+
+        const randomIndex = Math.floor(
+            Math.random() * availablePositions.length
+        )
+        return availablePositions[randomIndex]
+    }
+
+    addRover() {
+        const [x, y] = this.getRandomPosition()
+        const rover = new RoverEntity(x, y)
+        rover.getComp(Pathfinder).setGrid(this.grid)
+        this.addEntity(rover)
+        return rover
+    }
+
     update() {
+        console.log('update')
         const rovers = this.entities.filter(
             (e) => e instanceof RoverEntity
         ) as RoverEntity[]
@@ -140,17 +170,18 @@ export class RenderingSystem extends System {
     canvas: HTMLCanvasElement
     ctx: CanvasRenderingContext2D
     world: WorldSystem = null!
-
+    size = 50
     constructor(canvas: HTMLCanvasElement) {
         super()
         this.canvas = canvas
         this.ctx = canvas.getContext('2d')!
+        this.size = 24
     }
 
     init(world: WorldSystem) {
         this.world = world
-        this.canvas.width = (world.world[0] + 2) * 50
-        this.canvas.height = (world.world[1] + 2) * 50
+        this.canvas.width = (world.world[0] + 2) * this.size
+        this.canvas.height = (world.world[1] + 2) * this.size
         const entities = this.world.getEntities()
         // Implement logic to initialize rendering system
         for (const entity of entities) {
@@ -219,8 +250,7 @@ export class RenderingSystem extends System {
                 this.ctx.fillStyle = '#e3e3e3'
             }
         }
-
-        this.ctx.fillRect(x * 50, y * 50, 50, 50)
+        this.ctx.fillRect(x * this.size, y * this.size, this.size, this.size)
     }
 
     private checkBorder(x: number, y: number) {

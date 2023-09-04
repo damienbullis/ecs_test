@@ -8,11 +8,12 @@ export const WORLD_ENUM = {
 export type WorldType = (typeof WORLD_ENUM)[keyof typeof WORLD_ENUM]
 
 export const INITIAL_WORLD: WorldType[][] = [
-    [0, 0, 1, 1, 0, 1, 1, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 1, 0, 1, 0],
-    [0, 0, 1, 0, 0, 0, 1, 0, 1, 0],
-    [1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
-    [1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
+    [0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0],
+    [0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0],
+    [1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0],
+    [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0],
+    [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
 ]
 
 export function getHistoryColor(color: string, index: number) {

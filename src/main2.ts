@@ -1,35 +1,9 @@
-// class RoverComponent extends Component {}
-// class TargetComponent extends Component {}
-// class ObstacleComponent extends Component {}
-
-import { RenderingSystem, WorldSystem, INITIAL_WORLD } from './ecs'
-
-// function createWorldEntities(worldMatrix: WorldType[][]) {
-//   const entities: Entity[][] = []
-
-//   for (let y = 0; y < worldMatrix.length; y++) {
-//     const rowEntities: Entity[] = []
-
-//     for (let x = 0; x < worldMatrix[y].length; x++) {
-//       const entityType = worldMatrix[y][x]
-
-//       const entity = new Entity()
-//       if (entityType === WORLD_ENUM.ROVER) {
-//         entity.components.push(new RoverComponent())
-//       } else if (entityType === WORLD_ENUM.TARGET) {
-//         entity.components.push(new TargetComponent())
-//       } else if (entityType === WORLD_ENUM.OBSTACLE) {
-//         entity.components.push(new ObstacleComponent())
-//       }
-
-//       rowEntities.push(entity)
-//     }
-
-//     entities.push(rowEntities)
-//   }
-
-//   return entities
-// }
+import {
+    RenderingSystem,
+    WorldSystem,
+    INITIAL_WORLD,
+    TargetEntity,
+} from './ecs'
 
 /**
  * MAIN
@@ -37,7 +11,7 @@ import { RenderingSystem, WorldSystem, INITIAL_WORLD } from './ecs'
  * MAIN
  */
 
-function Main() {
+function Main(roverCount = 1) {
     let count = 0
     const canvas = document.createElement('canvas')
     const titleEl = document.createElement('h4')
@@ -63,17 +37,36 @@ function Main() {
     const renderingSystem = new RenderingSystem(canvas)
     const worldSystem = new WorldSystem(INITIAL_WORLD)
 
+    for (let i = 0; i < roverCount; i++) {
+        worldSystem.addRover()
+    }
+    worldSystem.addEntity(new TargetEntity(9, 4))
     worldSystem.init()
     renderingSystem.init(worldSystem)
 
     console.log({ worldSystem, renderingSystem })
 
+    const addRover = document.createElement('button')
+
+    const addRoverWrap = document.createElement('div')
+    const addRoverCount = document.createElement('span')
+    addRover.innerText = 'Add Rover'
+    addRover.onclick = () => {
+        const nextCount = roverCount + 1
+        // addRoverCount.innerText = roverCount.toString()
+        document.body.removeChild(wrap)
+        document.body.removeChild(canvas)
+        Main(nextCount)
+    }
+    addRoverWrap.style.display = 'flex'
+    addRoverWrap.style.flexDirection = 'row'
+    addRoverWrap.style.gap = '1rem'
+    addRoverCount.innerText = roverCount.toString()
+    addRoverWrap.appendChild(addRover)
+    addRoverWrap.appendChild(addRoverCount)
+    wrap.appendChild(addRoverWrap)
+
     let interval: NodeJS.Timeout
-    // interval = setInterval(() => {
-    //     titleEl.innerText = 'Update Count: ' + count++
-    //     worldSystem.update()
-    //     renderingSystem.update()
-    // }, 1000)
 
     const pause = document.createElement('button')
     pause.innerText = 'Start'

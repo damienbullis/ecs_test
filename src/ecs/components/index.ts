@@ -152,6 +152,7 @@ export class Movement extends Component {
 
 export class Pathfinder extends Component {
     private grid: number[][] | null = null
+    private worldGrid: [number, number] | null = null
     constructor(
         private move: Movement,
         private target: Target
@@ -159,35 +160,24 @@ export class Pathfinder extends Component {
         super()
     }
 
+    setGrid(grid: number[][]) {
+        this.grid = grid
+    }
+
     initGrid(entities: Entity[]) {
         // build the world size
-        const maxX = Math.max(
-            ...entities.map((e) => {
-                const pos = e.getComp(Position)
-                if (pos) {
-                    return pos.x + 1
-                }
-                return 0
-            })
-        )
-        const maxY = Math.max(
-            ...entities.map((e) => {
-                const pos = e.getComp(Position)
-                if (pos) {
-                    return pos.y + 1
-                }
-                return 0
-            })
-        )
-        this.grid = Array(maxY)
-            .fill(0)
-            .map(() => Array(maxX).fill(0))
+        if (this.worldGrid) {
+            const [maxX, maxY] = this.worldGrid
+            this.grid = Array(maxY)
+                .fill(0)
+                .map(() => Array(maxX).fill(0))
 
-        for (const entity of entities) {
-            const pos = entity.getComp(Position)
-            const type = entity.getComp(EntityType)
-            if (pos && type) {
-                this.grid[pos.y][pos.x] = type.type
+            for (const entity of entities) {
+                const pos = entity.getComp(Position)
+                const type = entity.getComp(EntityType)
+                if (pos && type) {
+                    this.grid[pos.y][pos.x] = type.type
+                }
             }
         }
     }
@@ -234,7 +224,7 @@ export class Pathfinder extends Component {
             if (currentIndex !== -1) {
                 openSet.splice(currentIndex, 1)
             }
-
+            console.log({ grid })
             // Explore the neighbors of the current node
             const neighbors = this.getNeighbors(current, grid)
 
