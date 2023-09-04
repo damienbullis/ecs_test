@@ -8,6 +8,7 @@ import {
     Style,
     Pathfinder,
     AllComponents,
+    History,
 } from '..'
 
 // Entity: Unique identifier for each game object
@@ -73,6 +74,7 @@ export class RoverEntity extends Entity {
         this.addComponent(new EntityType(WORLD_ENUM.ROVER))
         const movement = new Movement(this)
         this.addComponent(movement)
+        this.addComponent(new History())
         this.addComponent(new Pathfinder(movement, target))
     }
 
@@ -80,13 +82,13 @@ export class RoverEntity extends Entity {
         const target = this.getComp(Target)
         const movement = this.getComp(Movement)
         const pathfinder = this.getComp(Pathfinder)
+        const history = this.getComp(History)
 
         const targetPos = target.getTarget()
-
+        const { x, y } = movement.getPosition()
+        history.addHistory({ x, y })
         if (targetPos) {
-            const { x, y } = targetPos
-            console.log({ x, y, movement, pathfinder, target })
-            const { x: x2, y: y2 } = movement.getPosition()
+            const { x: x2, y: y2 } = targetPos
             if (x === x2 && y === y2) {
                 target.setTarget(null)
                 return

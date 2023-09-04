@@ -88,7 +88,7 @@ function Main() {
                 titleEl.innerText = 'Update Count: ' + count++
                 worldSystem.update()
                 renderingSystem.update()
-            }, 1000)
+            }, 500)
         }
     }
 

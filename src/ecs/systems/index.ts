@@ -8,6 +8,8 @@ import {
     Style,
     Position,
     Target,
+    History,
+    getHistoryColor,
 } from '..'
 
 // System: Logic to process entities and components
@@ -142,7 +144,6 @@ export class RenderingSystem extends System {
 
     private drawWorld() {
         const [x, y] = this.world.world
-        console.log({ x, y })
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
         const entities = this.world.getEntities()
         // draw rectangles for each cell
@@ -157,14 +158,45 @@ export class RenderingSystem extends System {
         if (this.checkBorder(x, y)) {
             this.ctx.fillStyle = '#111111'
         } else {
+            let useHistory = false
             const entity = entities.find((entity) => {
                 const pos = entity.getComp(Position)
-                return pos.x === x - 1 && pos.y === y - 1
+
+                // first check position matches
+                if (pos.x === x - 1 && pos.y === y - 1) {
+                    return true
+                }
+
+                if (entity instanceof RoverEntity) {
+                    const history = entity.getComp(History).getHistory()
+                    // then check history
+                    if (history) {
+                        for (const pos of history) {
+                            if (pos.x === x - 1 && pos.y === y - 1) {
+                                useHistory = true
+                                return true
+                            }
+                        }
+                    }
+                }
             })
 
             if (entity) {
                 const style = entity.getComp(Style)
-                this.ctx.fillStyle = style.css.backgroundColor || 'yellow'
+
+                if (useHistory) {
+                    const history = entity.getComp(History).getHistory()
+                    const index = history.findIndex(
+                        (pos) => pos.x === x - 1 && pos.y === y - 1
+                    )
+
+                    this.ctx.fillStyle = getHistoryColor(
+                        style.css.backgroundColor || '#111111',
+                        index === -1 ? 0 : index
+                    )
+                } else {
+                    this.ctx.fillStyle = style.css.backgroundColor || '#111111'
+                }
             } else {
                 this.ctx.fillStyle = '#e3e3e3'
             }
@@ -182,7 +214,6 @@ export class RenderingSystem extends System {
     }
 
     update() {
-        // Implement rendering logic here
         this.drawWorld()
     }
 }

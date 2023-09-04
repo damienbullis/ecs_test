@@ -10,6 +10,7 @@ export type AllComponents =
     | Style
     | Movement
     | Pathfinder
+    | History
 
 export class Position extends Component {
     constructor(
@@ -71,6 +72,22 @@ export class Style extends Component {
     }
 }
 
+export class History extends Component {
+    private history: PosType[] = []
+
+    addHistory(pos: PosType) {
+        if (this.history.length > 2) {
+            this.history.pop()
+        }
+
+        this.history.unshift(pos)
+    }
+
+    getHistory() {
+        return this.history
+    }
+}
+
 export class Movement extends Component {
     private entity: RoverEntity
     constructor(entity: RoverEntity) {
@@ -113,7 +130,6 @@ export class Movement extends Component {
         const dx = nextPos.x - currentPos.x
         const dy = nextPos.y - currentPos.y
 
-        console.log({ path, dx, dy })
         if (dx > 0) {
             this.leftRight('R') // Move right
         } else if (dx < 0) {
@@ -177,12 +193,10 @@ export class Pathfinder extends Component {
             this.initGrid(entities)
         }
 
+        // Get the start and goal positions
         const grid = this.grid!
         const start = this.move.getPosition()
         const goal = this.target.getTarget()
-
-        console.log({ entities, start, goal, grid })
-        // Implement A* algorithm here to find the path from 'start' to 'goal'
 
         // Define the A* data structures: open set, closed set, came-from map, and g-score
         const openSet: PosType[] = [start]
