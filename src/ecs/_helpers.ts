@@ -26,6 +26,17 @@ export function getHistoryColor(color: string, index: number) {
     return `${color}${opacity}`
 }
 
+export function generateRandomColor() {
+    const letters = '0123456789ABCDEF'
+    let color = '#'
+
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)]
+    }
+
+    return color
+}
+
 // export function getHistoryColor(color: string, index: number): string {
 //     // Validate input color format
 //     if (!/^#([0-9A-F]{3}){1,2}$/i.test(color)) {

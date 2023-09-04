@@ -1,4 +1,10 @@
-import { Entity, RoverEntity, WORLD_ENUM, WorldType } from '..'
+import {
+    Entity,
+    RoverEntity,
+    WORLD_ENUM,
+    WorldType,
+    generateRandomColor,
+} from '..'
 
 // Components are data associated with entities
 export class Component {}
@@ -63,7 +69,7 @@ export class Style extends Component {
             case 1:
                 return '#333'
             case 2:
-                return '#841bea'
+                return generateRandomColor()
             case 3:
                 return '#25f871'
             default:

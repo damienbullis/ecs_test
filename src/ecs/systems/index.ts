@@ -75,11 +75,20 @@ export class WorldSystem extends System {
     }
 
     private initEntities() {
+        const goal = { x: 9, y: 4 }
         const rover = new RoverEntity()
         const roverTarget = rover.getComp(Target)
-        roverTarget.setTarget({ x: 9, y: 4 })
+        roverTarget.setTarget(goal)
+        const rover2 = new RoverEntity(1, 4)
+        const rover2Target = rover2.getComp(Target)
+        rover2Target.setTarget(goal)
+        const rover3 = new RoverEntity(5, 1)
+        const rover3Target = rover3.getComp(Target)
+        rover3Target.setTarget(goal)
         // Add all entities to the world
         this.addEntity(rover)
+        this.addEntity(rover2)
+        this.addEntity(rover3)
         this.addEntity(new TargetEntity(9, 4))
     }
 
@@ -111,8 +120,17 @@ export class WorldSystem extends System {
         const rovers = this.entities.filter(
             (e) => e instanceof RoverEntity
         ) as RoverEntity[]
+        const target = this.entities.find(
+            (e) => e instanceof TargetEntity
+        ) as TargetEntity
 
         for (const rover of rovers) {
+            if (
+                rover.getComp(Position).x === target.getComp(Position).x &&
+                rover.getComp(Position).y === target.getComp(Position).y
+            ) {
+                return rover.id
+            }
             rover.update(this.entities)
         }
     }

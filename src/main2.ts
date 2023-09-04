@@ -86,8 +86,49 @@ function Main() {
             pause.innerText = 'Pause'
             interval = setInterval(() => {
                 titleEl.innerText = 'Update Count: ' + count++
-                worldSystem.update()
-                renderingSystem.update()
+                const res = worldSystem.update()
+                if (res !== undefined) {
+                    clearInterval(interval)
+                    interval = null!
+                    pause.innerText = 'Start'
+                    const overlay = document.createElement('div')
+                    overlay.style.position = 'absolute'
+                    overlay.style.top = '0'
+                    overlay.style.left = '0'
+                    overlay.style.width = '100%'
+                    overlay.style.height = '100%'
+                    overlay.style.backgroundColor = 'rgba(255,255,255,0.6)'
+                    overlay.style.backdropFilter = 'blur(20px)'
+                    overlay.style.display = 'flex'
+                    overlay.style.justifyContent = 'center'
+                    overlay.style.alignItems = 'center'
+                    overlay.style.flexDirection = 'column'
+                    overlay.style.gap = '2rem'
+
+                    const finishedTitle = document.createElement('h1')
+                    finishedTitle.innerText = 'Finished!'
+
+                    const finishedSubTitle = document.createElement('h2')
+                    finishedSubTitle.innerText =
+                        'Rover ' + res + ' reached the target!'
+
+                    const restartButton = document.createElement('button')
+                    restartButton.innerText = 'Restart'
+                    restartButton.onclick = () => {
+                        document.body.removeChild(overlay)
+                        document.body.removeChild(wrap)
+                        document.body.removeChild(canvas)
+
+                        Main()
+                    }
+
+                    overlay.appendChild(finishedTitle)
+                    overlay.appendChild(finishedSubTitle)
+                    overlay.appendChild(restartButton)
+                    document.body.appendChild(overlay)
+                } else {
+                    renderingSystem.update()
+                }
             }, 500)
         }
     }
